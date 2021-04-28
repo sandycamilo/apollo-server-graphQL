@@ -9,21 +9,44 @@ const typeDefs = gql`
 		date: String!
 	}
 
+  type Channel {
+    channelName: String!
+    channelPosts: [Post!]!
+  }
+
 	type Query {
-		posts: [Post!]!
+		posts(channelName: String!): [Post!]
+    channels(channelName: String!): [Channel!]
 	}
 
 	type Mutation {
-		addPost(message: String!): Post!
+		addPost(channelName: String!, message: String!): Post!
+    addChannel(channelName: String!): Channel!
 	}
 
 	type Subscription {
-		newPost: Post!
+		newPost(channelName: String!): Post!
+    newChannel: Channel!
 	}
 `
 // mock up data 
 const data = [
-	{ message: 'hello world', date: new Date() }
+  { channel1: 'drinks', posts: [
+    { message: 'milk', 
+      date: new Date()
+    },
+    { message: 'tea',
+      date: new Date()
+    }
+  ] },
+  { channel2: 'pets', posts: [
+    { message: 'dog', 
+      date: new Date()
+    },
+    { message: 'cat',
+      date: new Date()
+    }
+  ] }
 ]
 
 // resolvers 
@@ -31,20 +54,32 @@ const resolvers = {
 	Query: {
 		posts: () => {
 			return data
-		}
+		},
+    channels: () => {
+      return data
+    }
 	},
 	Mutation: {
 		addPost: (_,{ message }) => {
       const post = { message, date: new Date() }
-      date.push(post)
+      data.push(post)
       pubsub.publish('NEW_POST', { newPost: post }) //Publish!
       return post
+    },
+    addChannel: (_, { channelName }) => {
+      const channel = { channelName, channelPosts }
+      data.push(channel)
+      pubsub.publish('NEW_CHANNEL', { newChannel: channel })
+      return channel
     }
 	},
 	Subscription: {
 		newPost: {
 			subscribe: () => pubsub.asyncIterator('NEW_POST')
-		}
+		},
+    newChannel: {
+      subscribe: () => pubsub.asyncIterator('NEW_CHANNEL')
+    }
 	}
 }
 
