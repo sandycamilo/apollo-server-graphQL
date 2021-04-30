@@ -665,14 +665,81 @@ Build some queries in Graphiql to test your work.
 Write a query for each of the following: 
 
 - channels - Display a list of channels
+
+```
+query Channels {
+	channels {
+		channelName
+	}
+}
+```
+
 - addChannel - adds a new channel
+
+```
+mutation addChannel {
+	addChannel(channelName:"blankets") {
+		channelName
+	}
+}
+```
+
 - newChannel - subscribe to new channels
+
+```
+subscription newChannel {
+	newChannel {
+		channelName
+	}
+}
+```
 - Test new channels are added by chowing the list after you add a channel
-- Test a new channel is published via subscription
+
+```
+query Channels {
+	channels {
+		channelName
+	}
+}
+```
+
 - posts - show posts for a channel
+
+```
+query Post {
+	channels {
+		channelPosts {
+      message
+      date
+    }
+	}
+}
+```
+
 - addPost - adds a new post to a channel
+
+```
+mutation AddPost {
+	addPost(channelName:"pets", message:"rabbit") {
+		message
+		date
+	}
+```
+
+
 - Test posts added to the correct channel
-- newPost - Check the subscription is showing new posts.
+
+```
+query Post {
+	channels {
+		channelName
+    channelPosts {
+    	message
+      date
+    }
+	}
+}
+```
 
 <!-- > -->
 
