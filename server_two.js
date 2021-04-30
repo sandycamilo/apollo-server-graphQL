@@ -11,12 +11,12 @@ const typeDefs = gql`
 
   type Channel {
     channelName: String!
-    channelPosts: [Post!]
+    channelPosts: [Post!]!
   }
 
 	type Query {
-		posts(channelName: String!): [Post!]
-    channels: [Channel!]!
+		posts(channelName: String!): [Post!]!
+    channels(channelName: String!): [Channel!]!
 	}
 
 	type Mutation {
@@ -25,13 +25,13 @@ const typeDefs = gql`
 	}
 
 	type Subscription {
-		newPost(channelName: String!): Post
+		newPost(channelName: String!): Post!
     newChannel: Channel!
 	}
 `
 // mock up data 
 const data = [
-  { channelName: 'drinks', channelPosts: [
+  { channel1: 'drinks', posts: [
     { message: 'milk', 
       date: new Date()
     },
@@ -39,7 +39,7 @@ const data = [
       date: new Date()
     }
   ] },
-  { channelName: 'pets', channelPosts: [
+  { channel2: 'pets', posts: [
     { message: 'dog', 
       date: new Date()
     },
@@ -60,14 +60,14 @@ const resolvers = {
     }
 	},
 	Mutation: {
-		addPost: (_,{ channelName, message }) => {
-      const post = { channelName, message, date: new Date() }
+		addPost: (_,{ message }) => {
+      const post = { message, date: new Date() }
       data.push(post)
       pubsub.publish('NEW_POST', { newPost: post }) //Publish!
       return post
     },
     addChannel: (_, { channelName }) => {
-      const channel = { channelName , channelPosts }
+      const channel = { channelName, channelPosts }
       data.push(channel)
       pubsub.publish('NEW_CHANNEL', { newChannel: channel })
       return channel
